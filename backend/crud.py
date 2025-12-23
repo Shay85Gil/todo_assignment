@@ -93,7 +93,7 @@ def update_single_task_status(task_uuid):
         tasks[task_uuid]["status"] = new_task_status
         tasks[task_uuid]["updated_at"] = datetime.now()
     else:
-        return {"error": f"Validation error, '{new_task_status}' is an illegal text tp patch to status"}, 400
+        return {"error": f"Validation error, '{new_task_status}' is an illegal text to patch to status"}, 400
 
     return tasks[task_uuid], 200
     
