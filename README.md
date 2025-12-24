@@ -40,7 +40,7 @@ A simple web application for creating and managing a list of tasks
 3. Also, assumes users won't edit task that are not theirs.
 
 # Possible Improvements
-1. This implementation uses in-memory records as the app runs. Database usage for such a POC assignment assumed to be an overhead.
+1. This implementation uses in-memory records as the app runs. Database usage for this POC assignment assumed to be an overhead.
 2. Prettier GUI.
 
 # AI Used

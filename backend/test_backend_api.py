@@ -141,6 +141,21 @@ def test_update_single_bad_then_good_status():
     assert data["title"] == "task1_new_with_status_change"
     assert data["status"] == "done"
     assert data["created_at"] != data["updated_at"]
+
+
+def test_update_single_bad_date():
+    res = requests.put(f"{BASE_URL}/tasks/1", json=
+    {
+        "title": "task1_new_with_status_change",
+        "status": "in_progress",
+        "updated_at": "not_desired"
+    })
+
+    assert res.status_code == 200
+    data = res.json()
+    assert data["title"] == "task1_new_with_status_change"
+    assert data["status"] == "in_progress"
+    assert data["created_at"] != data["updated_at"]
     
 
 def test_update_not_found():

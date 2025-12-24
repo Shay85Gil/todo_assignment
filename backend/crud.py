@@ -1,31 +1,18 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_cors import CORS
-from marshmallow import Schema, fields, validate
-from datetime import datetime
 
-
-class TaskSchema(Schema):
-    title = fields.Str(
-        required=True,
-        validate=validate.Length(max=255)
-    )
-    description = fields.Str(load_default="", required=False)
-    status = fields.Str(
-        load_default="open",
-        validate=validate.OneOf(["open", "in_progress", "done"]),
-        required=False
-    )
-    created_at = fields.DateTime(load_default=lambda: datetime.now())
-    updated_at = fields.DateTime(load_default=lambda: datetime.now())
-
+from task_format import TaskSchema, task_add_timestamps, task_update_timestamps, task_update_status
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://localhost:5173"]}})
 
+# in-memory tasks
 tasks = {}
 
-task_uuid_increment = 1
+# schema for marshmellow versication
+schema = TaskSchema()
 
+task_uuid_increment = 1
 
 @app.get("/tasks")
 def list_tasks():
@@ -37,12 +24,12 @@ def create_new_single_task():
     global task_uuid_increment
 
     task_data = request.get_json()
-    task_json = jsonify(task_data)
 
-    # verify structure - 400 for validation errors
-    schema = TaskSchema()
+    # verify structure - 400 for validation errors 
     try:
         task_json = schema.load(task_data)
+        # adds same now timestamps to updated_at and created_at
+        task_json = task_add_timestamps(task_json)
     except Exception as exp:
         return {"error": f"Validation error, {exp}"}, 400
 
@@ -50,8 +37,10 @@ def create_new_single_task():
 
     ret_location_header = f"tasks/{task_uuid_increment}"
 
+    # increment only after the header is store for return
     task_uuid_increment = task_uuid_increment + 1
 
+    # 
     return ret_location_header, 201
 
 
@@ -71,13 +60,12 @@ def update_single_task(task_uuid):
     new_task_data = request.get_json()
     
     # verify structure - 400 for validation errors
-    schema = TaskSchema()
     try:
         new_task_json = schema.load(new_task_data)
+        # updates now timestamp to updated_at only
+        new_task_json = task_update_timestamps(new_task_json, tasks[task_uuid])
     except Exception as exp:
         return {"error": f"Validation error, {exp}"}, 400
-    
-    new_task_json["created_at"] = tasks[task_uuid]["created_at"]
 
     tasks[task_uuid] = new_task_json
 
@@ -93,8 +81,8 @@ def update_single_task_status(task_uuid):
     
     # verify status - 400 for validation errors
     if new_task_status in ["open", "in_progress", "done"]:
-        tasks[task_uuid]["status"] = new_task_status
-        tasks[task_uuid]["updated_at"] = datetime.now()
+        # also updates status and now timestamp to updated_at only
+        tasks[task_uuid] = task_update_status(tasks[task_uuid], new_task_status)
     else:
         return {"error": f"Validation error, '{new_task_status}' is an illegal text to patch to status"}, 400
 
@@ -107,7 +95,7 @@ def delete_new_task(task_uuid):
         return {"error": f"Task ID {task_uuid} not found"}, 404
     
     del tasks[task_uuid]
-    return {"message": f"Task ID {task_uuid} deleted"}, 204
+    return "", 204
 
 
 if __name__ == "__main__":
