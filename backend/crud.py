@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from marshmallow import Schema, fields, validate
 from datetime import datetime
 
@@ -19,8 +20,10 @@ class TaskSchema(Schema):
 
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://localhost:5173"]}})
 
 tasks = {}
+
 task_uuid_increment = 1
 
 
@@ -108,4 +111,4 @@ def delete_new_task(task_uuid):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
