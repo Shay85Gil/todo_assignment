@@ -2,8 +2,8 @@
 A simple web application for creating and managing a list of tasks
 
 # Setup Instructions
-Run "docker-compose build --no-cache"
-Run "docker-compose up"
+1. Run "docker-compose build --no-cache" (sudo)
+2. Run "docker-compose up" (sudo)
 
 # API Usage examples
 1. Create Task:
@@ -32,7 +32,7 @@ Run "docker-compose up"
 1. Used Flask as a lean and stright-forward REST API package.
 2. Used marshmallow to help enforce validation errors.
 3. Used Docker to avoid many instalations. and also as a part to run pytest test suit, that fails the docker build.
-4. Added CI on push and PR that fails in docker build fails because of errors/tests.
+4. Added GitHub Actions CI on push and PR that fails in docker build fails because of errors/tests.
 
 # Assumptions Made
 1. In task create, the POST endpoint would get a workload with legal title at least, to avoid "zombie" task that are not as defined
@@ -42,3 +42,8 @@ Run "docker-compose up"
 # Possible Improvements
 1. This implementation uses in-memory records as the app runs. Database usage for such a POC assignment assumed to be an overhead.
 2. Prettier GUI.
+
+# AI Used
+1. ChatGPT 5.2 - to select frameworks (as I didn't came from Full Stack).
+2. ChatGPT 5.2 - to understand syntax and get some code refs and snipets.
+3. ChatGPT 5.2 - for docker-compose and github actions and understand basic vue bring-up.
