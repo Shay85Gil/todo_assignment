@@ -26,23 +26,9 @@
           <td>{{ task.updated_at }}</td>
           <td>
             <button @click="startEdit(loc, task)">Edit</button>
-            <!-- When status is OPEN -->
-            <template v-if="task.status === 'open'">
-              <button @click="patchInProgress(loc)">in_progress</button>
-              <button @click="patchDone(loc)">done</button>
-            </template>
-          
-            <!-- When status is IN_PROGRESS -->
-            <template v-else-if="task.status === 'in_progress'">
-              <button @click="patchOpen(loc)">open</button>
-              <button @click="patchDone(loc)">done</button>
-            </template>
-          
-            <!-- When status is DONE -->
-            <template v-else-if="task.status === 'done'">
-              <button @click="patchOpen(loc)">open</button>
-              <button @click="patchInProgress(loc)">in_progress</button>
-            </template>      
+            <button v-if="task.status !== 'open'"        @click="patchStatus(loc, 'open')">open</button>
+            <button v-if="task.status !== 'in_progress'" @click="patchStatus(loc, 'in_progress')">in_progress</button>
+            <button v-if="task.status !== 'done'"        @click="patchStatus(loc, 'done')">done</button>     
             <button @click="deleteTask(loc)">Delete</button>
           </td>
         </tr>
@@ -97,8 +83,6 @@ export default {
       const res = await axios.get("/api/tasks", {
         headers: { "Cache-Control": "no-cache" }
       });
-
-      this.raw_tasks = JSON.stringify(res.data, null, 2);  // pretty print
 
       const locations = res.data
 
@@ -167,39 +151,15 @@ export default {
     },
 
     async deleteTask(loc) {
-      this.editingLoc = loc;
-
-      await axios.delete(`/api/${this.editingLoc}`);
+      await axios.delete(`/api/${loc}`);
 
       await this.loadTasks();
-      this.cancelEdit();
     },
 
-    async patchOpen(loc) {
-      this.editingLoc = loc;
-
-      await axios.patch(`/api/${this.editingLoc}`, "open");
+    async patchStatus(loc, status) {
+      await axios.patch(`/api/${loc}`, status);
 
       await this.loadTasks();
-      this.cancelEdit();
-    },
-
-    async patchInProgress(loc) {
-      this.editingLoc = loc;
-
-      await axios.patch(`/api/${this.editingLoc}`, "in_progress");
-
-      await this.loadTasks();
-      this.cancelEdit();
-    },
-
-    async patchDone(loc) {
-      this.editingLoc = loc;
-
-      await axios.patch(`/api/${this.editingLoc}`, "done");
-
-      await this.loadTasks();
-      this.cancelEdit();
     }
   }
 };
